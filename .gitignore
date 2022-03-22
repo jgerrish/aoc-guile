@@ -5,3 +5,11 @@
 *.scm~
 *.scm#*
 .#*.scm
+
+# Ignore input data
+**/input.txt
+
+# Ignore Guile test logs
+**/*.log
+
+*~
