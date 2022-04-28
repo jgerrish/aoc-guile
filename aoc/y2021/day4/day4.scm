@@ -289,8 +289,8 @@
 	;; (display (format #f "draws: ~a, boards: ~a\n" draws boards))
 	;; (display (format #f "bitvector-boards: ~a\n" boards))
 	;; (display (format #f "board-table: ~a\n" board-table))
-	(display (format #f "last-winners: ~a\n" last-winners))
-	(display (format #f "winner-board: ~a\n" winner-board))
+	;; (display (format #f "last-winners: ~a\n" last-winners))
+	;; (display (format #f "winner-board: ~a\n" winner-board))
 	(display (format #f "day 4 part 2 last-winner: ~a, final-value: ~a\n"
        		       last-winner
        		       (* final-score (cadr last-winners))))))))
