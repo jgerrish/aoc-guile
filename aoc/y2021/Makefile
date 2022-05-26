@@ -12,4 +12,5 @@ test:
 	cd log && GUILE_LOAD_PATH=.. $(GUILE) ../aoc/y2021/day3/tests/test-day3.scm
 	cd log && GUILE_LOAD_PATH=.. $(GUILE) ../aoc/y2021/day4/tests/test-day4.scm
 	cd log && GUILE_LOAD_PATH=.. $(GUILE) ../aoc/y2021/day5/tests/test-day5.scm
+	cd log && GUILE_LOAD_PATH=.. $(GUILE) ../aoc/y2021/day10/tests/test-day10.scm
 	rm log/*.log
