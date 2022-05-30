@@ -21,3 +21,6 @@ To run the code on the test data available for each day:
 
 make
 
+This app contains test data in the questions, but not the actual input
+data.  You will need to download your input.txt files and add them to
+each day's directory.

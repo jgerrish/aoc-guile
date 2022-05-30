@@ -41,5 +41,4 @@
 (define (args)
   "aoc/y2021/day10/input.txt")
 (day10-part1 (args))
-;; (day10-part2 (args))
-
+(day10-part2 (args))

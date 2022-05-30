@@ -144,11 +144,10 @@
   #:export (check-opening-bracket
 	    check-bracket
 	    &parse-error make-parse-error-with-bracket
-	    add-bracket
-	    parse
-	    bracket-score
-	    parse-line
-	    day10-part1))
+	    add-bracket parse parse-line parse-lines complete-parse closing-bracket
+	    bracket-score incomplete-bracket-score closing-brackets-score median-score
+	    day10-part1
+	    day10-part2))
 
 ;; Returns true if the bracket is an opening bracket character
 (define (check-opening-bracket bracket)
@@ -223,6 +222,24 @@
    ((eq? bracket #\>) 25137)
    (else 0)))
 
+
+;; Find the score for an incomplete closing bracket
+(define (incomplete-bracket-score bracket)
+  (cond
+   ((eq? bracket #\)) 1)
+   ((eq? bracket #\]) 2)
+   ((eq? bracket #\}) 3)
+   ((eq? bracket #\>) 4)
+   (else 0)))
+
+;; Return the closing bracket for an opening bracket
+(define (closing-bracket bracket)
+  (cond
+   ((eq? bracket #\() #\))
+   ((eq? bracket #\[) #\])
+   ((eq? bracket #\{) #\})
+   ((eq? bracket #\<) #\>)))
+
 ;; Parse a line
 ;; This function shows how exception handlers are created
 ;; with-exception handler accepts two required arguments,
@@ -239,22 +256,87 @@
 ;; In addition, we only handle &parse-error exceptions with #unwind-for-type,
 ;; That way stack-overflow, out-of-memory, and any other exceptions like maybe
 ;; signals are handled correctly.
-(define (parse-line discard-incomplete-parses? line)
+;; Returns 0 if a line is invalid and a discard-* flag is specified
+;; for that type
+;;
+;; The API here is that invalid parses like incomplete and corrupted
+;; parses return a zero.  These results can be filtered out with a
+;; higher-level function.
+(define (parse-line discard-incomplete-parses?
+		    discard-invalid-parses?
+		    discard-complete-parses?
+		    line)
   (with-exception-handler
       (lambda (exn)
 	;; Handle exception
-	;; (display (format #f "Exception args: ~s\n" (exception-args exn))))
-	(bracket-score ((record-accessor &parse-error 'bracket) exn)))
+	(if discard-invalid-parses?
+	    0
+	    (bracket-score ((record-accessor &parse-error 'bracket) exn))))
     (lambda ()
       (let ((result (parse line)))
-	(if discard-incomplete-parses?
+	(if (and discard-complete-parses? (= 0 (length result)))
 	    0
-	    result)))
+	    (if (and discard-incomplete-parses?
+		     (not (= 0 (length result))))
+		0
+		result))))
     #:unwind? #t
     #:unwind-for-type &parse-error))
 
+;; This function calls parse-line for each line (sentence to parse) in
+;; a list It also filters out items if discard-incomplete-parses? is
+;; #t or discard-invalid-parses? is #t, or complete parses if
+;; discard-complete-parses? is #t
+(define (parse-lines discard-incomplete-parses?
+		     discard-invalid-parses?
+		     discard-complete-parses?
+		     lines)
+  (filter (lambda (x)
+	    (if (number? x)
+		(not (= x 0))
+		#t))
+	  (map
+	   (lambda (line)
+	     (parse-line discard-incomplete-parses?
+			 discard-invalid-parses?
+			 discard-complete-parses?
+			 line))
+	   lines)))
+
+;; Return a list of closing brackets that correctly complete a parse
+(define (complete-parse stack)
+  (map closing-bracket stack))
+
+;; Score the closing brackets in a completion
+;; This returns a list where the tail is the first item found in the
+;; navgiation subsystem line.  It doesn't "look" like a proper
+;; stack-based parse (reversed), but it is.
+;; e.g. (not using #\chars) given '([[{) it returns '(]]})
+(define (closing-brackets-score closing-brackets)
+  (let ((arbitary-multiplier 5))
+    (reduce
+     (lambda (x prev)
+       (+ (* prev arbitary-multiplier) x))
+     0
+     (map incomplete-bracket-score closing-brackets))))
+
+;; Find the median entry
+;; For a list with an even number of entries, it uses the ceiling to
+;; find the middle point
+(define (median-score scores)
+  (let ((scores-length (length scores)))
+    (list-ref (sort scores <) (inexact->exact (round (/ scores-length 2))))))
+
 (define (day10-part1 filename)
   (let ((lines (get-lines filename)))
-    (let ((final-value (reduce + 0 (map (lambda (line) (parse-line #t line)) lines))))
+    (let ((final-value (reduce + 0 (parse-lines #t #f #t lines))))
       (display
        (format #f "day 10 part 1 final-value: ~a\n" final-value)))))
+
+(define (day10-part2 filename)
+  (let ((lines (get-lines filename)))
+    (let ((final-value
+	   (median-score
+	    (map closing-brackets-score (map complete-parse (parse-lines #f #t #t lines))))))
+      (display
+       (format #f "day 10 part 2 final-value: ~a\n" final-value)))))
