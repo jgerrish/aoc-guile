@@ -4,6 +4,7 @@
 (use-modules (aoc y2021 day4 day4))
 (use-modules (aoc y2021 day5 day5))
 (use-modules (aoc y2021 day7 day7))
+(use-modules (aoc y2021 day8 day8))
 (use-modules (aoc y2021 day10 day10))
 (use-modules (aoc port))
 (use-modules (aoc main))
@@ -43,6 +44,12 @@
   "aoc/y2021/day7/input.txt")
 (day7-part1 (args))
 (day7-part2 (args))
+
+;; Run day8
+(define (args)
+  "aoc/y2021/day8/input.txt")
+(day8-part1 (args))
+(day8-part2 (args))
 
 ;; Run day10
 (define (args)

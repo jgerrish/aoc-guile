@@ -34,9 +34,3 @@
       (cadr x)))
    l))
 
-;; This is too complicated, there's enough information in the other versions to build the
-;; index
-;; (fold append '() (distribute (indexed-list (map (lambda (row) (indexed-list row)) (car boards)))))
-;; (map (lambda (x) (list (car x) (car (cadr x)) (cadr (cadr x)))) (fold append '() (distribute (indexed-list (map (lambda (row) (indexed-list row)) (car boards))))))
-
-
