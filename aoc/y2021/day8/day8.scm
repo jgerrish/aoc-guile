@@ -197,13 +197,6 @@
 	    parse-line index-by-number-of-wires solve
 	    day8-part1 day8-part2))
 
-(use-modules (srfi srfi-1))
-(use-modules (ice-9 regex))
-(use-modules ((rnrs hashtables) :version (6)))
-(use-modules ((rnrs records syntactic) :version (6)))
-(use-modules (aoc port))
-(use-modules (aoc main))
-
 ;; Define a record type for storing the wires / segments
 ;; This is an record with all fields immutable.
 ;; It must be constructed in a functional manner.

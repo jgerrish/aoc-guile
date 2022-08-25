@@ -1,0 +1,249 @@
+;; --- Day 9: Smoke Basin ---
+
+;; These caves seem to be lava tubes. Parts are even still
+;; volcanically active; small hydrothermal vents release smoke into
+;; the caves that slowly settles like rain.
+
+;; If you can model how the smoke flows through the caves, you might
+;; be able to avoid it and be that much safer. The submarine generates
+;; a heightmap of the floor of the nearby caves for you (your puzzle
+;; input).
+
+;; Smoke flows to the lowest point of the area it's in. For example,
+;; consider the following heightmap:
+
+;; 2199943210
+;; 3987894921
+;; 9856789892
+;; 8767896789
+;; 9899965678
+;; Each number corresponds to the height of a particular location,
+;; where 9 is the highest and 0 is the lowest a location can be.
+
+;; Your first goal is to find the low points - the locations that are
+;; lower than any of its adjacent locations. Most locations have four
+;; adjacent locations (up, down, left, and right); locations on the
+;; edge or corner of the map have three or two adjacent locations,
+;; respectively. (Diagonal locations do not count as adjacent.)
+
+;; In the above example, there are four low points, all highlighted:
+;; two are in the first row (a 1 and a 0), one is in the third row (a
+;; 5), and one is in the bottom row (also a 5). All other locations on
+;; the heightmap have some lower adjacent location, and so are not low
+;; points.
+
+;; The risk level of a low point is 1 plus its height. In the above
+;; example, the risk levels of the low points are 2, 1, 6, and 6. The
+;; sum of the risk levels of all low points in the heightmap is
+;; therefore 15.
+
+;; Find all of the low points on your heightmap. What is the sum of
+;; the risk levels of all low points on your heightmap?
+
+;; --- Part Two ---
+;; Next, you need to find the largest basins so you know what areas
+;; are most important to avoid.
+
+;; A basin is all locations that eventually flow downward to a single
+;; low point. Therefore, every low point has a basin, although some
+;; basins are very small. Locations of height 9 do not count as being
+;; in any basin, and all other locations will always be part of
+;; exactly one basin.
+
+;; The size of a basin is the number of locations within the basin,
+;; including the low point. The example above has four basins.
+
+;; The top-left basin, size 3:
+
+;; 2199943210
+;; 3987894921
+;; 9856789892
+;; 8767896789
+;; 9899965678
+;; The top-right basin, size 9:
+
+;; 2199943210
+;; 3987894921
+;; 9856789892
+;; 8767896789
+;; 9899965678
+;; The middle basin, size 14:
+
+;; 2199943210
+;; 3987894921
+;; 9856789892
+;; 8767896789
+;; 9899965678
+;; The bottom-right basin, size 9:
+
+;; 2199943210
+;; 3987894921
+;; 9856789892
+;; 8767896789
+;; 9899965678
+;; Find the three largest basins and multiply their sizes together. In
+;; the above example, this is 9 * 14 * 9 = 1134.
+
+;; What do you get if you multiply together the sizes of the three
+;; largest basins?
+
+
+
+;; Day 9 Part 1 notes
+;; Initial algorithm thought:
+;; Just iterate through every location, checking each neighbor.  if
+;; there is a neighbor that is lower, move on.  If it's the lowest
+;; area, return it or append it to the solution list.
+;;
+;; Functions required;
+;; Given location index, return neighbors, including edge rules.
+;; Iterator function that walks through the map.
+
+
+
+;; Day 9 Part 2 notes
+;; Algorithm:
+;; Iterate through every location:
+
+;; Do a DFS or BFS, where a path or sub-path is valid from the
+;; starting point to a neighbor point if that neighbor point is less
+;; than the current point (verify any lesser value, not just one less)
+;; and the current point is not depth 9.
+
+;; Find all paths from the current point.  Collect them all and index
+;; the paths by the point they end at.  Deduplicate them (may be done
+;; earlier in the search) (several ways to do this, any path with a
+;; point p < 9 is in the same basin.)  A set or hashtable data
+;; structure from the DFS or BFS may be able to be re-used.
+
+(define-module (aoc y2021 day9 day9)
+  #:use-module (srfi srfi-1)
+  #:use-module (aoc port)
+  #:use-module (aoc main)
+  #:export (parse-line parse-lines index-pairs flatten-one-level
+		       find-neighbors find-min-spots risk-levels day9-part1))
+
+;; Somewhat saner char->number function
+(define (char->number c)
+  (case c
+    ((#\0) 0)
+    ((#\1) 1)
+    ((#\2) 2)
+    ((#\3) 3)
+    ((#\4) 4)
+    ((#\5) 5)
+    ((#\6) 6)
+    ((#\7) 7)
+    ((#\8) 8)
+    ((#\9) 9)
+    (else (raise-exception
+	   (make-exception-with-message (format #f "Invalid number: ~a" c))))))
+
+;; Convert a single line from the input into a list of integers from 0-9
+(define (parse-line line)
+  (map (lambda (c) (char->number c)) (string->list line)))
+
+;; Parse the input data into an array
+
+;; This converts a list of lines like this (for a 3x3 grid):
+;; '("123" "456" "789") into this: #2((1 2 3) (4 5 6) (7 8 9))
+;; The array it returns can be accessed like this:
+;; (array-ref #2((1 2 3) (4 5 6) (7 8 9)) 0 1)
+;; This will return 6.  This is the first line (first index 0),
+;; second item (second index 1)
+(define (parse-lines lines)
+    (if (null? lines)
+	#2()
+	(let ((str-length (string-length (car lines)))
+	      (num-lines (length lines))
+	      (parsed-data (map parse-line lines)))
+	  (list->array 2 parsed-data))))
+
+;; Generate list of indexes from short neighbor list format
+(define (index-pairs lst index first-index?)
+  (map
+   (lambda (x)
+     (if first-index?
+	 (list index x)
+	 (list x index)))
+   lst))
+
+;; flatten list by one level
+(define (flatten-one-level lst)
+  (apply append lst))
+
+;; Return a list of neighbors of this index
+;; Neighbors are up, down, left and right with no wrapping
+;; size is the largest index size
+;; This function generates pairs like:
+;; (find-neighbors 0 0 4 4) -> ((1) (1))
+;; (find-neighbors 1 1 4 4) -> ((0 2) (0 2))
+;; Where the function result is two lists, the neighbor indexes in the
+;; first dimension and the neighbor indexes in the second dimension.
+;; Then transforms them into full index pairs
+(define (find-neighbors i1 i2 i1-max i2-max)
+  (let ((i1-neighbors
+	 (cond ((= i1 0) '(1))
+	       ((= i1 i1-max) (list (1- i1)))
+	       (else (list (1- i1) (1+ i1)))))
+	(i2-neighbors
+	 (cond ((= i2 0) '(1))
+	       ((= i2 i2-max) (list (1- i2)))
+	       (else (list (1- i2) (1+ i2))))))
+    ;; TODO Fix this, not efficient, should handle most logic on the leaves
+    ;; using more visitor / walker patterns
+    (flatten-one-level (list
+       			(index-pairs i1-neighbors i2 #f)
+       			(index-pairs i2-neighbors i1 #t)))))
+
+;; Find the minimum spots in the map
+(define (find-min-spots arr)
+  (let ((dimensions (array-dimensions arr)))
+    (let ((dst (make-array 2 (car dimensions) (cadr dimensions)))
+	  (i1-max (1- (car dimensions)))
+	  (i2-max (1- (cadr dimensions))))
+      (let find-min-spot-helper ((i 0) (j 0) (result '()))
+	(if (or (> i i1-max) (> j i2-max))
+	    result
+	    (let ((neighbors (find-neighbors i j i1-max i2-max)))
+	      (let ((min-value
+	             (apply
+		      min
+		      (map
+		       (lambda (x) (array-ref arr (car x) (cadr x)))
+		       neighbors))))
+		(let ((res (if (<= min-value (array-ref arr i j))
+			       result
+			       (cons (list i j) result))))
+		  (if (>= j i2-max)
+		      (find-min-spot-helper (1+ i) 0 res)
+		      (find-min-spot-helper i (1+ j) res))))))))))
+
+;; Find the minimum spots in the map
+(define (find-indexes arr)
+  (let ((dimensions (array-dimensions arr)))
+    (let ((dst (make-array 2 (car dimensions) (cadr dimensions)))
+	  (i1-max (1- (car dimensions)))
+	  (i2-max (1- (cadr dimensions))))
+      (let find-indexes-helper ((i i1-max) (j i2-max) (result '()))
+	(if (and (= i 0) (< j 0))
+	    result
+	    (if (< j 0)
+		(find-indexes-helper (1- i) i2-max result)
+		(find-indexes-helper i (1- j) (cons (list i j) result))))))))
+
+;; Calculate the risk levels for the low spots
+;; arr is the array
+;; spots is a list of low points
+(define (risk-levels arr spots)
+  (fold
+   (lambda (x prev) (+ x prev 1))
+   0
+   (map (lambda (x) (array-ref arr (car x) (cadr x))) spots)))
+
+;; Compute part 1 for day 9
+(define (day9-part1 filename)
+  (let ((lines (parse-lines (get-lines filename))))
+    (let ((rl (risk-levels lines (find-min-spots lines))))
+      (begin
+	(display (format #f "day 9 part 1 final-value: ~a\n" rl))))))
