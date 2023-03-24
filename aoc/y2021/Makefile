@@ -7,6 +7,7 @@ y2021:
 	GUILE_LOAD_PATH=. $(GUILE) aoc/y2021/y2021.scm
 
 test:
+	mkdir -p log
 	cd log && GUILE_LOAD_PATH=.. $(GUILE) ../aoc/y2021/day1/tests/test-day1.scm
 	cd log && GUILE_LOAD_PATH=.. $(GUILE) ../aoc/y2021/day2/tests/test-day2.scm
 	cd log && GUILE_LOAD_PATH=.. $(GUILE) ../aoc/y2021/day3/tests/test-day3.scm

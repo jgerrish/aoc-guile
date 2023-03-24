@@ -36,30 +36,30 @@
 
 ;; Run day5
 (define (args)
-  "aoc/y2021/day5/input.txt")
+  "aoc/y2021/day5/test1.txt")
 (day5-part1 (args))
 (day5-part2 (args))
 
 ;; Run day7
 (define (args)
-  "aoc/y2021/day7/input.txt")
+  "aoc/y2021/day7/test1.txt")
 (day7-part1 (args))
 (day7-part2 (args))
 
 ;; Run day8
 (define (args)
-  "aoc/y2021/day8/input.txt")
+  "aoc/y2021/day8/test1.txt")
 (day8-part1 (args))
 (day8-part2 (args))
 
 ;; Run day9
 (define (args)
-  "aoc/y2021/day9/input.txt")
+  "aoc/y2021/day9/test1.txt")
 (day9-part1 (args))
 ;; (day9-part2 (args))
 
 ;; Run day10
 (define (args)
-  "aoc/y2021/day10/input.txt")
+  "aoc/y2021/day10/test1.txt")
 (day10-part1 (args))
 (day10-part2 (args))
