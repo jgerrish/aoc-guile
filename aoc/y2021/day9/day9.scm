@@ -118,10 +118,14 @@
 
 (define-module (aoc y2021 day9 day9)
   #:use-module (srfi srfi-1)
+  #:use-module (ice-9 exceptions)
+  #:use-module ((rnrs hashtables) :version (6))	; SRFI-6 hash tables
+  #:use-module ((rnrs sorting) :version (6))
   #:use-module (aoc port)
   #:use-module (aoc main)
   #:export (parse-line parse-lines index-pairs flatten-one-level
-		       find-neighbors find-min-spots risk-levels day9-part1))
+		       find-neighbors find-min-spots risk-levels day9-part1
+		       higher-or-equal-neighbors find-basin day9-part2))
 
 ;; Somewhat saner char->number function
 (define (char->number c)
@@ -151,6 +155,9 @@
 ;; (array-ref #2((1 2 3) (4 5 6) (7 8 9)) 0 1)
 ;; This will return 6.  This is the first line (first index 0),
 ;; second item (second index 1)
+;;
+;; coordinates take this form: (row column)
+;;
 (define (parse-lines lines)
     (if (null? lines)
 	#2()
@@ -181,6 +188,14 @@
 ;; Where the function result is two lists, the neighbor indexes in the
 ;; first dimension and the neighbor indexes in the second dimension.
 ;; Then transforms them into full index pairs
+;;
+;; coordinates take this form: (row column)
+;;
+;; Parameters:
+;;   i1 is the first coordinate
+;;   i2 is the second coordinate
+;;   i1-max is the size (width)
+;;   i2-max is the size (height)
 (define (find-neighbors i1 i2 i1-max i2-max)
   (let ((i1-neighbors
 	 (cond ((= i1 0) '(1))
@@ -247,3 +262,69 @@
     (let ((rl (risk-levels lines (find-min-spots lines))))
       (begin
 	(display (format #f "day 9 part 1 final-value: ~a\n" rl))))))
+
+
+;; Day 2 code
+
+;; Get the neigbors that are shallower or equal to the current cell
+;; Given a depth value and list of neighbors, filter the neighbors to
+;; those that are higher than or equal to the depth.
+;; This doesn't include neighbors that have a depth of 9
+(define (higher-or-equal-neighbors arr depth neighbors)
+  (filter
+   (lambda (neighbor)
+     (let ((val (array-ref arr (first neighbor) (second neighbor))))
+       (and (>= val depth) (not (= val 9)))))
+   neighbors))
+
+;; Check whether an item has been visited
+(define (visited? visited item)
+  (hashtable-contains? visited item))
+
+;; Mark an item as visited
+(define (mark-visited visited item)
+  (hashtable-set! visited item #t))
+
+;; Given a cave and a low-point, find all cells in the basin
+;; associated with that low-point.
+(define (find-basin arr low-point)
+  (let* ((dimensions (array-dimensions arr))
+	 (i1-max (1- (car dimensions)))
+	 (i2-max (1- (cadr dimensions))))
+    (let find-basin-helper ((stack (list low-point))
+			    (visited (make-hashtable (lambda (x) (hash x 10000)) equal?)))
+      (if (null? stack)
+	  ;; Return the visited items if we're done
+	  (hashtable-keys visited)
+	  ;; Keep searching
+	  ;; get an item from the queue and search it
+	  (let ((item (car stack)))
+	    (if (visited? visited item)
+		(find-basin-helper (cdr stack) visited)
+		;; not visited
+		(let ((neighbors
+		       (higher-or-equal-neighbors
+			arr
+			(array-ref arr (first item) (second item))
+			(find-neighbors
+			 (first item) (second item) i1-max i2-max))))
+		  (begin
+		    ;; Add to visited
+		    (mark-visited visited item)
+		    (find-basin-helper
+		     (append neighbors (cdr stack)) visited)))))))))
+
+
+;; Compute part 2 for day 9
+(define (day9-part2 filename)
+  (let ((lines (parse-lines (get-lines filename))))
+    (display
+     (format #f "day 9 part 2 final-value: ~a\n"
+	     (reduce * 1
+		     (take
+		      (list-sort
+		       (lambda (a b) (> a b))
+		       (map
+			(lambda (low-point) (vector-length (find-basin lines low-point)))
+			(find-min-spots lines)))
+		      3))))))

@@ -56,7 +56,7 @@
 (define (args)
   "aoc/y2021/day9/test1.txt")
 (day9-part1 (args))
-;; (day9-part2 (args))
+(day9-part2 (args))
 
 ;; Run day10
 (define (args)

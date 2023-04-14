@@ -2,10 +2,12 @@
 ;; Test day9
 ;;
 (define-module (aoc y2021 day9 tests day9)
+  #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-64)
   #:use-module (ice-9 exceptions)
   #:use-module ((rnrs hashtables) :version (6))
   #:use-module ((rnrs records syntactic) :version (6))
+  #:use-module ((rnrs sorting) :version (6))
   #:use-module (aoc y2021 day9 day9))
 
 ;; Test parse-line
@@ -132,4 +134,48 @@
     "(find-min-spots #2((3 2) (1 4))) -> 5"
   5
   (risk-levels #2((3 2) (1 4)) (find-min-spots #2((3 2) (1 4)))))
+(test-end)
+
+(test-begin "day9-higher-or-equal-neighbors")
+;;
+;; 129
+;; 293
+;; 294
+;;
+(let* ((cave-data '("129" "293" "294"))
+       (cave-array (parse-lines cave-data)))
+  (test-equal
+      "(higher-or-equal-neighbors cave-array 1 '((1 0) (0 1)) -> '((0 1) (1 0))"
+    '((0 1) (1 0))
+    (list-sort
+     (lambda (a b) (or (< (first a) (first b)) (< (second a) (second b))))
+     (higher-or-equal-neighbors cave-array 1 '((1 0) (0 1)))))
+  (test-equal
+      "(higher-or-equal-neighbors cave-array 2 '((0 0) (1 1) (0 2)) -> '()"
+    '()
+    (list-sort
+     (lambda (a b) (or (< (first a) (first b)) (< (second a) (second b))))
+     (higher-or-equal-neighbors cave-array 2 '((0 0) (1 1) (0 2))))))
+(test-end)
+
+(test-begin "day9-find-basin")
+;;
+;; 129
+;; 293
+;; 294
+;;
+(let* ((cave-data '("129" "293" "294"))
+       (cave-array (parse-lines cave-data)))
+  (test-equal
+      "(find-basin cave-array '(0 0)) -> #((0 0) (0 1) (1 0) (2 0))"
+    #((0 0) (0 1) (1 0) (2 0))
+    (vector-sort
+     (lambda (a b) (or (< (first a) (first b)) (< (second a) (second b))))
+     (find-basin cave-array '(0 0))))
+  (test-equal
+      "(find-basin cave-array '(1 2)) -> #((1 2) (2 2))"
+    #((1 2) (2 2))
+    (vector-sort
+     (lambda (a b) (or (< (first a) (first b)) (< (second a) (second b))))
+     (find-basin cave-array '(1 2)))))
 (test-end)
