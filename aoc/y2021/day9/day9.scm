@@ -123,25 +123,10 @@
   #:use-module ((rnrs sorting) :version (6))
   #:use-module (aoc port)
   #:use-module (aoc main)
-  #:export (parse-line parse-lines index-pairs flatten-one-level
-		       find-neighbors find-min-spots risk-levels day9-part1
+  #:use-module (aoc util)
+  #:use-module (aoc array)
+  #:export (parse-line parse-lines find-min-spots risk-levels day9-part1
 		       higher-or-equal-neighbors find-basin day9-part2))
-
-;; Somewhat saner char->number function
-(define (char->number c)
-  (case c
-    ((#\0) 0)
-    ((#\1) 1)
-    ((#\2) 2)
-    ((#\3) 3)
-    ((#\4) 4)
-    ((#\5) 5)
-    ((#\6) 6)
-    ((#\7) 7)
-    ((#\8) 8)
-    ((#\9) 9)
-    (else (raise-exception
-	   (make-exception-with-message (format #f "Invalid number: ~a" c))))))
 
 ;; Convert a single line from the input into a list of integers from 0-9
 (define (parse-line line)
@@ -165,51 +150,6 @@
 	      (num-lines (length lines))
 	      (parsed-data (map parse-line lines)))
 	  (list->array 2 parsed-data))))
-
-;; Generate list of indexes from short neighbor list format
-(define (index-pairs lst index first-index?)
-  (map
-   (lambda (x)
-     (if first-index?
-	 (list index x)
-	 (list x index)))
-   lst))
-
-;; flatten list by one level
-(define (flatten-one-level lst)
-  (apply append lst))
-
-;; Return a list of neighbors of this index
-;; Neighbors are up, down, left and right with no wrapping
-;; size is the largest index size
-;; This function generates pairs like:
-;; (find-neighbors 0 0 4 4) -> ((1) (1))
-;; (find-neighbors 1 1 4 4) -> ((0 2) (0 2))
-;; Where the function result is two lists, the neighbor indexes in the
-;; first dimension and the neighbor indexes in the second dimension.
-;; Then transforms them into full index pairs
-;;
-;; coordinates take this form: (row column)
-;;
-;; Parameters:
-;;   i1 is the first coordinate
-;;   i2 is the second coordinate
-;;   i1-max is the size (width)
-;;   i2-max is the size (height)
-(define (find-neighbors i1 i2 i1-max i2-max)
-  (let ((i1-neighbors
-	 (cond ((= i1 0) '(1))
-	       ((= i1 i1-max) (list (1- i1)))
-	       (else (list (1- i1) (1+ i1)))))
-	(i2-neighbors
-	 (cond ((= i2 0) '(1))
-	       ((= i2 i2-max) (list (1- i2)))
-	       (else (list (1- i2) (1+ i2))))))
-    ;; TODO Fix this, not efficient, should handle most logic on the leaves
-    ;; using more visitor / walker patterns
-    (flatten-one-level (list
-       			(index-pairs i1-neighbors i2 #f)
-       			(index-pairs i2-neighbors i1 #t)))))
 
 ;; Find the minimum spots in the map
 (define (find-min-spots arr)
