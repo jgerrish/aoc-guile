@@ -7,59 +7,44 @@
 (use-modules (aoc y2021 day8 day8))
 (use-modules (aoc y2021 day9 day9))
 (use-modules (aoc y2021 day10 day10))
+(use-modules (aoc y2021 day11 day11))
 (use-modules (aoc port))
 (use-modules (aoc main))
 
-;; Run day1
-(define (args)
-  "day1/test1.txt")
-(day1-part1 (args))
-(day1-part2 (args))
 
-;; Run day2
-(define (args)
-  "day2/test1.txt")
-(day2-part1 (args))
-(day2-part2 (args))
+;; First refactor of data-driven runner
+(define days
+  (list
+   (list '("data" . "day1/test1.txt")
+	 (cons "code" (list day1-part1 day1-part2)))
+   (list '("data" . "day2/test1.txt")
+	 (cons "code" (list day2-part1 day2-part2)))
+   (list '("data" . "day3/test1.txt")
+	 (cons "code" (list day3-part1 day3-part2)))
+   (list '("data" . "day4/test1.txt")
+	 (cons "code" (list day4-part1 day4-part2)))
+   (list '("data" . "day5/test1.txt")
+	 (cons "code" (list day5-part1 day5-part2)))
+   (list '("data" . "day7/test1.txt")
+	 (cons "code" (list day7-part1 day7-part2)))
+   (list '("data" . "day8/test1.txt")
+	 (cons "code" (list day8-part1 day8-part2)))
+   (list '("data" . "day9/test1.txt")
+	 (cons "code" (list day9-part1 day9-part2)))
+   (list '("data" . "day10/test1.txt")
+	 (cons "code" (list day10-part1 day10-part2)))
+   ;; Second refactor of data-driven runner
+   (list '("data" . "day11/test1.txt")
+	 (cons "code" (list day11-part1 day11-part2)))))
+;; Second refactor might use reflection like below
+;;	 (cons "code" (module-ref (resolve-module '(aoc y2021 day11 day11)) 'parts)))))
 
-;; Run day3
-(define (args)
-  "day3/test1.txt")
-(day3-part1 (args))
-(day3-part2 (args))
 
-;; Run day4
-(define (args)
-  "day4/test1.txt")
-(day4-part1 (args))
-(day4-part2 (args))
-
-;; Run day5
-(define (args)
-  "day5/test1.txt")
-(day5-part1 (args))
-(day5-part2 (args))
-
-;; Run day7
-(define (args)
-  "day7/test1.txt")
-(day7-part1 (args))
-(day7-part2 (args))
-
-;; Run day8
-(define (args)
-  "day8/test1.txt")
-(day8-part1 (args))
-(day8-part2 (args))
-
-;; Run day9
-(define (args)
-  "day9/test1.txt")
-(day9-part1 (args))
-(day9-part2 (args))
-
-;; Run day10
-(define (args)
-  "day10/test1.txt")
-(day10-part1 (args))
-(day10-part2 (args))
+;; Execute the days
+(for-each
+ (lambda (day)
+   (for-each
+    (lambda (part)
+      (part (assoc-ref day "data")))
+    (assoc-ref day "code")))
+ days)

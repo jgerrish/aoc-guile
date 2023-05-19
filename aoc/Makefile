@@ -3,7 +3,7 @@ GUILE=guile --debug --no-auto-compile
 # Run the code regardless of the state of the directory
 .PHONY: y2021
 
-all: y2021
+all: y2021 test
 
 y2021:
 	cd y2021 && $(MAKE) -f Makefile

@@ -14,4 +14,5 @@ test:
 	cd log && GUILE_LOAD_PATH=../../.. $(GUILE) ../day8/tests/test-day8.scm
 	cd log && GUILE_LOAD_PATH=../../.. $(GUILE) ../day9/tests/test-day9.scm
 	cd log && GUILE_LOAD_PATH=../../.. $(GUILE) ../day10/tests/test-day10.scm
+	cd log && GUILE_LOAD_PATH=../../.. $(GUILE) ../day11/tests/test-day11.scm
 	rm log/*.log

@@ -1,4 +1,4 @@
-all: y2021
+all: y2021 test
 
 y2021:
 	cd aoc/y2021 && $(MAKE) -f Makefile
