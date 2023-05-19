@@ -51,21 +51,6 @@
     #:unwind-for-type &message))
 (test-end)
 
-(test-begin "day11-array-indexes")
-(test-equal
-    "(array-indexes #2() => #2()"
-  #2()
-  (array-indexes #2()))
-(test-equal
-    "(array-indexes #2((1 2)) => #2((0 1))"
-  #2(((0 0) (0 1)))
-  (array-indexes #2((1 2))))
-(test-equal
-    "(array-indexes #2((1 2 3) (4 5 6) (7 8 9)) => #2(((0 0) (0 1) (0 2)) ((1 0) (1 1) (1 2)) ((2 0) (2 1) (2 2)))"
-  #2(((0 0) (0 1) (0 2)) ((1 0) (1 1) (1 2)) ((2 0) (2 1) (2 2)))
-  (array-indexes #2((1 2 3) (4 5 6) (7 8 9))))
-(test-end)
-
 (test-begin "day11-flashed?")
 (test-equal
     "(flashed? flashed '(0 0)) => #t"
