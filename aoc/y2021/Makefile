@@ -10,6 +10,7 @@ test:
 	cd log && GUILE_LOAD_PATH=../../.. $(GUILE) ../day3/tests/test-day3.scm
 	cd log && GUILE_LOAD_PATH=../../.. $(GUILE) ../day4/tests/test-day4.scm
 	cd log && GUILE_LOAD_PATH=../../.. $(GUILE) ../day5/tests/test-day5.scm
+	cd log && GUILE_LOAD_PATH=../../.. $(GUILE) ../day6/tests/test-day6.scm
 	cd log && GUILE_LOAD_PATH=../../.. $(GUILE) ../day7/tests/test-day7.scm
 	cd log && GUILE_LOAD_PATH=../../.. $(GUILE) ../day8/tests/test-day8.scm
 	cd log && GUILE_LOAD_PATH=../../.. $(GUILE) ../day9/tests/test-day9.scm
