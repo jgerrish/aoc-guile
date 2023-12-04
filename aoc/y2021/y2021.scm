@@ -27,7 +27,7 @@
    (list '("data" . "day5/test1.txt")
 	 (cons "code" (list day5-part1 day5-part2)))
    (list '("data" . "day6/test1.txt")
-    	 (cons "code" (list day6-part1)))
+    	 (cons "code" (list day6-part1 day6-part2)))
    (list '("data" . "day7/test1.txt")
     	 (cons "code" (list day7-part1 day7-part2)))
    (list '("data" . "day8/test1.txt")

@@ -96,13 +96,26 @@
   #:use-module (aoc util)
   #:use-module (aoc port)
   #:use-module (aoc main)
-  #:export (parse-line step run-steps day6-part1))
+  #:export (parse-line fish-list->fish-count-vector step step-vector run-steps
+		       day6-part1 day6-part2))
 
 ;; Parse line into a list of numbers
 ;; Lines are formatted like: "3,4,3,1,2"
 ;; The function returns a list of the numbers: (3 4 3 1 2)
 (define (parse-line lines)
   (map string->number (string-tokenize lines char-set:digit)))
+
+
+;; Generate a count vector of the number of fish of each age.
+;; Accepts a list of lanternfish ages Returns a vector of length nine,
+;; where each element is the number of lanternfish of that age.
+(define (fish-list->fish-count-vector l)
+  (let ((v (make-vector 9 0)))
+    (for-each
+     (lambda (x)
+       (vector-set! v x (1+ (vector-ref v x))))
+     l)
+    v))
 
 ;; Advance one step or day
 ;; Accepts a list of lanternfish ages, returns a list of the next
@@ -119,21 +132,65 @@
 	      (step-helper rst (cons 6 old-fish) (cons 8 new-fish))
 	      (step-helper rst (cons (1- fish) old-fish) new-fish))))))
 
+;; Advance one step or day
+;; Accepts a list of lanternfish ages, returns a list of the next
+;; generation ages.
+;; This function preserves the same ordering as the examples
+;; But that is not strictly required by the problem.
+(define (step lst)
+  (let step-helper ((l lst) (old-fish '()) (new-fish '()))
+    (if (null? l)
+	(append (reverse old-fish) (reverse new-fish))
+	(let ((fish (car l))
+	      (rst (cdr l)))
+	  (if (= fish 0)
+	      (step-helper rst (cons 6 old-fish) (cons 8 new-fish))
+	      (step-helper rst (cons (1- fish) old-fish) new-fish))))))
+
+
+;; Advance one step or day
+;; Accepts a vector of lanternfish counts.
+;; The positions or indexes of the vector correspond to ages.  The
+;; values in the vector are the number of lanternfish of that age.
+;; Returns a vector with the new counts after a step.
+(define (step-vector vector)
+  (let ((run-off (vector-ref vector 0)))
+    (begin
+      (do ((i 0 (1+ i)))
+	  ((> i 7))
+	(vector-set! vector i (vector-ref vector (1+ i))))
+      (vector-set! vector 8 run-off)
+      (vector-set! vector 6 (+ (vector-ref vector 6) run-off))
+      vector)))
+
 ;; Run multiple steps
-;; Accepts a list of lantern fish and the number of steps to run
-(define (run-steps lst num-steps)
-  (let run-steps-helper ((l lst) (n num-steps))
+;; Parameters:
+;;   Parameter 1: A object representing the lantern fish
+;;                For part one, this is a list of lantern fish
+;;                For part two, this is a vector of lantern fish counts
+;;   Parameter 2: And the number of steps to run
+;;   Parameter 3: The step function.  Differs depending on the type of object
+;;                (list or vector)
+(define (run-steps lf num-steps step-function)
+  (let run-steps-helper ((l lf) (n num-steps))
     (if (not (zero? n))
-	(run-steps-helper (step l) (1- n))
+	(run-steps-helper (step-function l) (1- n))
 	l)))
 
 ;; Compute part 1 for day 6
 (define (day6-part1 filename)
   (let ((line (parse-line (car (get-lines filename)))))
-    (let ((final-fish (run-steps line 80)))
+    (let ((final-fish (run-steps line 80 step)))
       (let ((result (length final-fish)))
 	(display (format #f "day 6 part 1 final-value: ~a\n" result))))))
 
+;; Compute part 1 for day 6
+(define (day6-part2 filename)
+  (let ((vector (fish-list->fish-count-vector (parse-line (car (get-lines filename))))))
+    (let ((final-fish (run-steps vector 256 step-vector)))
+      (let ((result (reduce + 0 (vector->list final-fish))))
+	(display (format #f "day 6 part 2 final-value: ~a\n" result))))))
+
 
 ;; The parts of the day that should get run
-(define parts (list day6-part1))
+(define parts (list day6-part1 day6-part2))
