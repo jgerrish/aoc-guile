@@ -9,6 +9,7 @@
 (use-modules (aoc y2021 day9 day9))
 (use-modules (aoc y2021 day10 day10))
 (use-modules (aoc y2021 day11 day11))
+(use-modules (aoc y2021 day12 day12))
 (use-modules (aoc port))
 (use-modules (aoc main))
 
@@ -38,7 +39,9 @@
 	 (cons "code" (list day10-part1 day10-part2)))
    ;; Second refactor of data-driven runner
    (list '("data" . "day11/test1.txt")
-	 (cons "code" (list day11-part1 day11-part2)))))
+	 (cons "code" (list day11-part1 day11-part2)))
+   (list '("data" . "day12/test1.txt")
+	 (cons "code" (list day12-part1 day12-part2)))))
 ;; Second refactor might use reflection like below
 ;;	 (cons "code" (module-ref (resolve-module '(aoc y2021 day11 day11)) 'parts)))))
 
