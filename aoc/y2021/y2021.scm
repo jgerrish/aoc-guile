@@ -10,6 +10,7 @@
 (use-modules (aoc y2021 day10 day10))
 (use-modules (aoc y2021 day11 day11))
 (use-modules (aoc y2021 day12 day12))
+(use-modules (aoc y2021 day13 day13))
 (use-modules (aoc port))
 (use-modules (aoc main))
 
@@ -41,7 +42,9 @@
    (list '("data" . "day11/test1.txt")
 	 (cons "code" (list day11-part1 day11-part2)))
    (list '("data" . "day12/test1.txt")
-	 (cons "code" (list day12-part1 day12-part2)))))
+	 (cons "code" (list day12-part1 day12-part2)))
+   (list '("data" . "day13/test1.txt")
+	 (cons "code" (list day13-part1 day13-part2)))))
 ;; Second refactor might use reflection like below
 ;;	 (cons "code" (module-ref (resolve-module '(aoc y2021 day11 day11)) 'parts)))))
 
