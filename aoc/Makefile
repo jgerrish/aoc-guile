@@ -11,4 +11,5 @@ y2021:
 test:
 	mkdir -p log
 	cd log && GUILE_LOAD_PATH=../.. $(GUILE) ../tests/test-array.scm
+	cd log && GUILE_LOAD_PATH=../.. $(GUILE) ../tests/test-set.scm
 	rm log/*.log
